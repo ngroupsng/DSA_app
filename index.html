@@ -7,18 +7,7 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <meta name="theme-color" content="#2563eb">
 
-<title>DSA Learning App — Version 1</title>
-<link rel="manifest" href="manifest.json">
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("service-worker.js")
-      .then(reg => console.log("✅ Service Worker registered:", reg.scope))
-      .catch(err => console.log("❌ Service Worker failed:", err));
-  });
-}
-</script>
-
+<title>DSA Learning </title>
 <style>
 :root{
   --accent:#2563eb; --bg:#f8fafc; --text:#0f172a;
@@ -53,6 +42,17 @@ footer span{color:#f87171}
 @media(max-width:600px){.search-bar input{width:90%}}
 </style>
 </head>
+     <link rel="manifest" href="manifest.json">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(reg => console.log('✅ Service Worker registered', reg))
+      .catch(err => console.log('❌ Service Worker failed', err));
+  });
+}
+</script>
+
 <body>
 <header>
   <h1>DSA Learning App</h1>
@@ -156,3 +156,4 @@ renderTopics();
 </script>
 </body>
 </html>
+
