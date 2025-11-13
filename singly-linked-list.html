@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/dsa1.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#2563eb">
+<title>Singly Linked List — Visualizer</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --accent:#2563eb; --card:#fff; --text:#0f172a;
+    --node:#c7d2fe; --node-action:#fde68a; --node-new:#60a5fa; --node-del:#fb7185;
+    --arrow:#475569;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter, Arial, sans-serif;background:var(--bg);color:var(--text)}
+  header{display:flex;align-items:center;gap:12px;background:var(--accent);color:#fff;padding:12px 16px;flex-wrap:wrap}
+  header .home-btn{background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer}
+  header h1{margin:0;font-size:18px;font-weight:600;flex:1}
+
+  .wrap{max-width:1200px;margin:18px auto;padding:12px}
+  .tab-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .tab-buttons button{padding:8px 12px;border-radius:8px;border:1px solid #e6edf8;background:#fff;cursor:pointer;font-weight:600}
+  .tab-buttons button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  section.tab{display:none;background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(12,15,30,0.06)}
+  section.tab.active{display:block}
+
+  .visualizer-shell{display:flex;gap:14px}
+  .left-panel{flex:1}
+  .right-panel{width:420px}
+
+  .controls-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  input[type="text"], input[type="number"]{padding:8px;border-radius:8px;border:1px solid #cbd5e1}
+  input[type="number"]{width:110px}
+  button.cta{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+  button.ghost{background:#eef2ff;border:1px solid #e2e8f0;color:var(--text);padding:8px 12px;border-radius:8px;cursor:pointer}
+  .small{font-size:13px;color:#475569;margin-top:6px}
+
+  /* visualizer area */
+  .list-wrap{background:#fbfdff;border-radius:8px;border:1px solid #e6eef8;padding:12px;min-height:360px;position:relative;overflow:auto}
+  .nodes-row{display:flex;align-items:center;gap:28px;padding:20px;min-height:160px;transition:all .3s}
+  .node{
+    width:90px;height:60px;border-radius:10px;background:var(--node);display:flex;align-items:center;justify-content:center;font-weight:800;
+    position:relative; box-shadow:0 8px 18px rgba(2,6,23,0.06); transition:all .35s ease;
+  }
+  .node.new{background:var(--node-new); color:#fff; transform:scale(1.06)}
+  .node.action{background:var(--node-action)}
+  .node.del{background:var(--node-del); color:#fff; transform:translateY(-20px); opacity:0}
+  .node .label{font-weight:800}
+  .arrow-svg{position:absolute;pointer-events:none;top:0;left:0;width:100%;height:100%}
+  .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+  .btn-row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+  .status{margin-top:10px;font-weight:700;color:var(--accent)}
+
+  .code-panel{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;min-height:360px;overflow:auto;font-family:monospace;font-size:13px}
+  .code-line{padding:4px 6px;border-radius:4px}
+  .code-line.active{background:rgba(253,230,138,0.12);color:#111}
+   footer{
+    text-align: center;
+  }
+  /* simple responsive */
+  @media(max-width:980px){ .visualizer-shell{flex-direction:column} .right-panel{width:100%} .nodes-row{padding:12px} }
+</style>
+</head>
+<body>
+<header>
+  <button class="home-btn" id="homeBtn">Home</button>
+  <h1>Singly Linked List — Visualizer</h1>
+</header>
+
+<div class="wrap">
+  <div class="tab-buttons">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="pseudocode">Pseudocode</button>
+    <button class="tab-btn" data-tab="visualizer">Visualizer</button>
+    <button class="tab-btn" data-tab="ccode">C Code</button>
+  </div>
+
+  <section id="overview" class="tab active">
+    <h2>Overview</h2>
+    <p>A <strong>singly linked list</strong> is a linear data structure where each node contains data and a pointer to the next node. We visualize insertion and deletion at beginning, end, and a given position.</p>
+    <ul>
+      <li><strong>Insertion:</strong> add node at beginning / end / position</li>
+      <li><strong>Deletion:</strong> remove node from beginning / end / position</li>
+      <li><strong>Complexity:</strong> insert/delete at head — O(1); at position — O(n)</li>
+    </ul>
+  </section>
+
+  <section id="pseudocode" class="tab">
+    <h2>Pseudocode</h2>
+    <pre style="background:#f1f5f9;padding:12px;border-radius:8px;">
+INSERT_BEGIN(x):
+  new = node(x)
+  new.next = head
+  head = new
+
+INSERT_END(x):
+  new = node(x)
+  if head == NULL: head = new
+  else:
+    temp = head
+    while temp.next != NULL: temp = temp.next
+    temp.next = new
+
+INSERT_AT(x, pos):
+  if pos == 0: INSERT_BEGIN(x)
+  else:
+    temp = head
+    for i=1 to pos-1: temp = temp.next
+    new.next = temp.next
+    temp.next = new
+
+DELETE_BEGIN():
+  if head == NULL: return
+  temp = head
+  head = head.next
+  free(temp)
+
+DELETE_END():
+  if head == NULL: return
+  if head.next == NULL: head = NULL; return
+  temp = head
+  while temp.next.next != NULL: temp = temp.next
+  free(temp.next)
+  temp.next = NULL
+
+DELETE_AT(pos):
+  if pos == 0: DELETE_BEGIN()
+  else:
+    temp = head
+    for i=1 to pos-1: temp = temp.next
+    toDelete = temp.next
+    temp.next = toDelete.next
+    free(toDelete)
+    </pre>
+  </section>
+
+  <section id="visualizer" class="tab">
+    <div class="visualizer-shell">
+      <div class="left-panel">
+        <div class="controls-row">
+          <input id="value-input" type="text" placeholder="Value (e.g. 10)">
+          <input id="pos-input" type="number" placeholder="Position" min="0">
+          <button class="cta" id="insert-begin">Insert Beg</button>
+          <button class="cta" id="insert-end">Insert End</button>
+          <button class="cta" id="insert-pos">Insert Pos</button>
+          <button class="ghost" id="delete-begin">Delete Beg</button>
+          <button class="ghost" id="delete-end">Delete End</button>
+          <button class="ghost" id="delete-pos">Delete Pos</button>
+        </div>
+
+        <div class="meta">
+          <div class="btn-row">
+            <button class="cta" id="random-list">Random List</button>
+            <button class="ghost" id="reset-btn">Reset</button>
+          </div>
+        </div>
+
+        <div class="list-wrap" id="list-wrap">
+          <svg class="arrow-svg" id="arrow-svg"></svg>
+          <div class="nodes-row" id="nodes-row"></div>
+        </div>
+
+        <div class="status" id="status">Status: Ready</div>
+      </div>
+
+      <div class="right-panel">
+        <div class="code-panel" id="code-panel"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ccode" class="tab">
+    <h2>Simple C Code (Singly Linked List)</h2>
+    <pre style="background:#f8fafc;padding:12px;border-radius:8px;overflow:auto;">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+struct Node* head = NULL;
+
+void insertAtBeginning(int x) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = x;
+    newNode->next = head;
+    head = newNode;
+}
+
+void insertAtEnd(int x) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = x;
+    newNode->next = NULL;
+    if (head == NULL) head = newNode;
+    else {
+        struct Node* temp = head;
+        while (temp->next != NULL) temp = temp->next;
+        temp->next = newNode;
+    }
+}
+
+void deleteBeginning() {
+    if (head == NULL) return;
+    struct Node* temp = head;
+    head = head->next;
+    free(temp);
+}
+
+void deleteEnd() {
+    if (head == NULL) return;
+    if (head->next == NULL) { free(head); head = NULL; return; }
+    struct Node* temp = head;
+    while (temp->next->next != NULL) temp = temp->next;
+    free(temp->next);
+    temp->next = NULL;
+}
+
+void display() {
+    struct Node* temp = head;
+    while (temp != NULL) {
+        printf("%d -> ", temp->data);
+        temp = temp->next;
+    }
+    printf("NULL\n");
+}
+    </pre>
+  </section>
+</div>
+
+<script>
+/* Singly Linked List Visualizer
+   - realistic pointer reconnection animation
+   - insertion/deletion at beginning/end/position
+   - code panel highlights corresponding lines
+*/
+
+(() => {
+  // UI wiring
+  const tabs = document.querySelectorAll('.tab');
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  tabBtns.forEach(btn => btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.toggle('active', b===btn));
+    tabs.forEach(t => t.classList.toggle('active', t.id === btn.dataset.tab));
+  }));
+  document.getElementById('homeBtn').addEventListener('click', ()=> window.location.href='index.html');
+
+  // DOM refs
+  const nodesRow = document.getElementById('nodes-row');
+  const arrowSvg = document.getElementById('arrow-svg');
+  const statusEl = document.getElementById('status');
+  const codePanel = document.getElementById('code-panel');
+
+  // controls
+  const valInput = document.getElementById('value-input');
+  const posInput = document.getElementById('pos-input');
+  const insertBeginBtn = document.getElementById('insert-begin');
+  const insertEndBtn = document.getElementById('insert-end');
+  const insertPosBtn = document.getElementById('insert-pos');
+  const deleteBeginBtn = document.getElementById('delete-begin');
+  const deleteEndBtn = document.getElementById('delete-end');
+  const deletePosBtn = document.getElementById('delete-pos');
+  const randomBtn = document.getElementById('random-list');
+  const resetBtn = document.getElementById('reset-btn');
+
+  // code lines (for highlighting)
+  const codeLines = [
+    "INSERT_BEGIN(x): new = node(x); new.next = head; head = new",
+    "INSERT_END(x): traverse to last; last.next = new",
+    "INSERT_AT(x,pos): find prev; new.next = prev.next; prev.next = new",
+    "DELETE_BEGIN(): temp=head; head=head.next; free(temp)",
+    "DELETE_END(): find prev of last; free(last); prev.next=NULL",
+    "DELETE_AT(pos): find prev; toDelete=prev.next; prev.next = toDelete.next; free(toDelete)"
+  ];
+  function renderCode(active=-1){
+    codePanel.innerHTML='';
+    codeLines.forEach((ln,i)=>{
+      const d=document.createElement('div');
+      d.className='code-line' + (i===active ? ' active': '');
+      d.textContent = ln;
+      codePanel.appendChild(d);
+    });
+  }
+  renderCode();
+
+  // linked list state (array of values) - for simplicity we render the list left-to-right
+  let list = [11, 7, 22, 5]; // default
+  let animating = false;
+
+  // helpers
+  function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+  function raf(){ return new Promise(r=>requestAnimationFrame(r)); }
+
+  // render nodes and arrows
+  function renderList(highlightIdx=-1, newIdx=-1) {
+    nodesRow.innerHTML = '';
+    arrowSvg.innerHTML = '';
+    list.forEach((val, idx)=>{
+      const n = document.createElement('div');
+      n.className='node';
+      if(idx === highlightIdx) n.classList.add('action');
+      if(idx === newIdx) n.classList.add('new');
+      n.dataset.index = idx;
+      const label = document.createElement('div');
+      label.className='label';
+      label.textContent = val;
+      n.appendChild(label);
+      nodesRow.appendChild(n);
+    });
+    // draw arrows after DOM positions available
+    raf().then(()=>drawArrows());
+  }
+
+  function drawArrows(){
+    arrowSvg.innerHTML = '';
+    const nodes = Array.from(nodesRow.querySelectorAll('.node'));
+    if(nodes.length < 2) return;
+    const svgRect = arrowSvg.getBoundingClientRect();
+    nodes.forEach((node, i) => {
+      const next = nodes[i+1];
+      if(!next) return;
+      const a = node.getBoundingClientRect();
+      const b = next.getBoundingClientRect();
+      const startX = a.right - svgRect.left - 6;
+      const startY = a.top + a.height/2 - svgRect.top;
+      const endX = b.left - svgRect.left + 6;
+      const endY = b.top + b.height/2 - svgRect.top;
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      const dx = (endX - startX)/2;
+      const cp1x = startX + dx*0.6;
+      const cp2x = endX - dx*0.6;
+      const d = `M ${startX} ${startY} C ${cp1x} ${startY} ${cp2x} ${endY} ${endX} ${endY}`;
+      path.setAttribute('d', d);
+      path.setAttribute('stroke', 'var(--arrow)');
+      path.setAttribute('stroke-width','2');
+      path.setAttribute('fill','none');
+      path.setAttribute('marker-end','url(#arrowhead)');
+      arrowSvg.appendChild(path);
+    });
+    // marker
+    if(!arrowSvg.querySelector('#arrowhead')){
+      const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+      defs.innerHTML = `<marker id="arrowhead" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="${getComputedStyle(document.documentElement).getPropertyValue('--arrow').trim()}"/></marker>`;
+      arrowSvg.appendChild(defs);
+    }
+  }
+
+  // utility: update status text and code highlight
+  function setStatus(text, codeIndex=-1){
+    statusEl.textContent = text;
+    renderCode(codeIndex);
+  }
+
+  // animation actions
+  async function insertAtBeginning(value){
+    if(animating) return;
+    animating = true;
+    setStatus('Inserting at beginning...', 0);
+    // create visual new node (insert at left)
+    // visually, we create new node element, place it left of first node (offscreen), animate into place
+    // update logical list
+    list.unshift(value);
+    renderList(-1, 0);
+    await sleep(400);
+    // highlight head
+    renderList(0);
+    await sleep(450);
+    setStatus('Done', -1);
+    animating = false;
+  }
+
+  async function insertAtEnd(value){
+    if(animating) return;
+    animating = true;
+    setStatus('Inserting at end...', 1);
+    list.push(value);
+    renderList(-1, list.length-1);
+    await sleep(400);
+    renderList(list.length-1);
+    await sleep(450);
+    setStatus('Done', -1);
+    animating = false;
+  }
+
+  async function insertAtPosition(value, pos){
+    if(animating) return;
+    if(pos < 0) pos = 0;
+    if(pos > list.length) pos = list.length;
+    animating = true;
+    setStatus(`Inserting ${value} at position ${pos}...`, 2);
+    // traverse and highlight nodes 0..pos-1
+    for(let i=0;i<pos;i++){
+      renderList(i);
+      await sleep(350);
+    }
+    // perform insertion
+    list.splice(pos,0,value);
+    renderList(-1, pos);
+    await sleep(450);
+    renderList(pos);
+    await sleep(350);
+    setStatus('Done', -1);
+    animating = false;
+  }
+
+  async function deleteAtBeginning(){
+    if(animating) return;
+    if(list.length === 0){ setStatus('List empty', -1); return; }
+    animating = true;
+    setStatus('Deleting at beginning...', 3);
+    // animate first node removal
+    const firstNode = nodesRow.querySelector('.node');
+    if(firstNode){
+      firstNode.classList.add('del');
+      await sleep(360);
+    }
+    list.shift();
+    renderList();
+    await sleep(200);
+    setStatus('Done', -1);
+    animating = false;
+  }
+
+  async function deleteAtEnd(){
+    if(animating) return;
+    if(list.length === 0){ setStatus('List empty', -1); return; }
+    animating = true;
+    setStatus('Deleting at end...', 4);
+    const nodes = nodesRow.querySelectorAll('.node');
+    const last = nodes[nodes.length-1];
+    if(last){
+      last.classList.add('del');
+      await sleep(360);
+    }
+    list.pop();
+    renderList();
+    await sleep(200);
+    setStatus('Done', -1);
+    animating = false;
+  }
+
+  async function deleteAtPosition(pos){
+    if(animating) return;
+    if(list.length === 0){ setStatus('List empty', -1); return; }
+    if(pos<0) pos = 0;
+    if(pos >= list.length) pos = list.length-1;
+    animating = true;
+    setStatus(`Deleting at position ${pos}...`, 5);
+    // traverse highlight
+    for(let i=0;i<pos;i++){
+      renderList(i);
+      await sleep(300);
+    }
+    // animate deletion of node at pos
+    const node = Array.from(nodesRow.querySelectorAll('.node'))[pos];
+    if(node){
+      node.classList.add('del');
+      await sleep(360);
+    }
+    list.splice(pos,1);
+    renderList();
+    await sleep(200);
+    setStatus('Done', -1);
+    animating = false;
+  }
+
+  // events
+  insertBeginBtn.addEventListener('click', async ()=>{
+    const v = valInput.value.trim();
+    if(v===''){ setStatus('Enter a value', -1); return; }
+    await insertAtBeginning(v);
+  });
+  insertEndBtn.addEventListener('click', async ()=>{
+    const v = valInput.value.trim();
+    if(v===''){ setStatus('Enter a value', -1); return; }
+    await insertAtEnd(v);
+  });
+  insertPosBtn.addEventListener('click', async ()=>{
+    const v = valInput.value.trim();
+    let p = parseInt(posInput.value);
+    if(isNaN(p)) p = list.length;
+    if(v===''){ setStatus('Enter a value', -1); return; }
+    await insertAtPosition(v, p);
+  });
+
+  deleteBeginBtn.addEventListener('click', async ()=> await deleteAtBeginning());
+  deleteEndBtn.addEventListener('click', async ()=> await deleteAtEnd());
+  deletePosBtn.addEventListener('click', async ()=> {
+    let p = parseInt(posInput.value);
+    if(isNaN(p)) p = 0;
+    await deleteAtPosition(p);
+  });
+
+  randomBtn.addEventListener('click', ()=>{
+    const n = Math.max(2, Math.min(8, Math.round(Math.random()*6)+2));
+    list = Array.from({length:n}, ()=> Math.floor(Math.random()*90)+1);
+    renderList();
+    setStatus('Random list generated', -1);
+  });
+
+  resetBtn.addEventListener('click', ()=>{
+    list = [11,7,22,5];
+    renderList();
+    setStatus('Reset', -1);
+  });
+
+  // initial render and window resize handling for arrow redraw
+  renderList();
+  window.addEventListener('resize', ()=> raf().then(()=>drawArrows()));
+
+  // initial status
+  setStatus('Ready', -1);
+})();
+</script>
+ <footer>
+  <p>Made with ❤️ by Ngroups</p>
+  <p><a href="mailto:ngroups.ng@gmail.com">If any issues mail to this email.(Click me)</a></p>
+</footer>
+</body>
+</html>

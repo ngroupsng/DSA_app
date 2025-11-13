@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/dsa1.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#2563eb">
+
+<title>Binary Search — Visualizer</title>
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --accent: #2563eb;
+    --card: #fff;
+    --text: #0f172a;
+    --compare: #f59e0b;
+    --found: #10b981;
+    --notfound: #ef4444;
+    --block: #c7d2fe;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Inter", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--accent);
+    color: #fff;
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+  header .home-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .wrap { max-width: 1200px; margin: 18px auto; padding: 12px; }
+  .tab-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .tab-buttons button {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #e6edf8;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .tab-buttons button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  section.tab {
+    display: none;
+    background: var(--card);
+    padding: 14px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(12, 15, 30, 0.06);
+  }
+  section.tab.active { display: block; }
+
+  .visualizer-shell { display: flex; gap: 14px; }
+  .left-panel { flex: 1; }
+  .right-panel { width: 420px; }
+
+  .controls-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  input[type="text"] {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    width: 220px;
+  }
+  button.cta {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button.ghost {
+    background: #eef2ff;
+    border: 1px solid #e2e8f0;
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .visualizer-area {
+    background: #fbfdff;
+    border-radius: 8px;
+    border: 1px solid #e6eef8;
+    padding: 12px;
+    min-height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .block {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    background: var(--block);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+  .block.left, .block.right { opacity: 0.4; }
+  .block.mid { background: var(--compare); color: #fff; }
+  .block.found { background: var(--found); color: #fff; }
+  .block.notfound { background: var(--notfound); color: #fff; }
+
+  .result { margin-top: 12px; font-weight: 600; text-align: center; }
+
+  .code-panel {
+    background: #0b1220;
+    color: #e6eef8;
+    padding: 12px;
+    border-radius: 8px;
+    min-height: 320px;
+    overflow: auto;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .code-line { padding: 4px 6px; border-radius: 4px; }
+  .code-line.active { background: rgba(253, 230, 138, 0.12); color: #111; }
+  footer{ text-align: center;}
+</style>
+</head>
+<body>
+<header>
+  <button class="home-btn" id="homeBtn">Home</button>
+  <h1>Binary Search — Visualizer</h1>
+</header>
+
+<div class="wrap">
+  <div class="tab-buttons">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="pseudocode">Pseudocode</button>
+    <button class="tab-btn" data-tab="visualizer">Visualizer</button>
+  </div>
+
+  <!-- Overview -->
+  <section id="overview" class="tab active">
+    <h2>Overview</h2>
+    <p>Binary Search works on sorted arrays. It repeatedly divides the search interval in half until the target is found or the interval is empty.</p>
+    <ul>
+      <li><strong>Best Case:</strong> O(1)</li>
+      <li><strong>Average Case:</strong> O(log n)</li>
+      <li><strong>Worst Case:</strong> O(log n)</li>
+    </ul>
+  </section>
+
+  <!-- Pseudocode -->
+  <section id="pseudocode" class="tab">
+    <h2>Pseudocode</h2>
+    <pre style="background:#f1f5f9;padding:12px;border-radius:8px;">
+BinarySearch(arr, key):
+  low = 0
+  high = n - 1
+  while low <= high:
+    mid = (low + high) / 2
+    if arr[mid] == key:
+      return mid
+    else if arr[mid] < key:
+      low = mid + 1
+    else:
+      high = mid - 1
+  return -1
+    </pre>
+  </section>
+
+  <!-- Visualizer -->
+  <section id="visualizer" class="tab active">
+    <div class="visualizer-shell">
+      <div class="left-panel">
+        <div class="controls-row">
+          <input id="array-input" type="text" placeholder="e.g. 1, 3, 5, 7, 9">
+          <input id="key-input" type="text" placeholder="Key e.g. 7" style="width:100px">
+          <button class="cta" id="set-array">Set</button>
+          <button class="ghost" id="random-array">Random</button>
+          <button class="cta" id="start-btn">Run</button>
+          <button class="ghost" id="reset-btn">Reset</button>
+        </div>
+        <div class="visualizer-area" id="visualizer-area"></div>
+        <div class="result" id="result"></div>
+      </div>
+
+      <div class="right-panel">
+        <div class="code-panel" id="code-panel"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const tabs = document.querySelectorAll(".tab");
+  const tabBtns = document.querySelectorAll(".tab-btn");
+  tabBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabBtns.forEach(b => b.classList.remove("active"));
+      tabs.forEach(t => t.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
+    });
+  });
+
+  document.getElementById("homeBtn").onclick = () => location.href = "index.html";
+
+  const arrayInput = document.getElementById("array-input");
+  const keyInput = document.getElementById("key-input");
+  const area = document.getElementById("visualizer-area");
+  const resultEl = document.getElementById("result");
+  const codePanel = document.getElementById("code-panel");
+
+  let arr = [1, 3, 5, 7, 9];
+  renderArray();
+
+  const codeLines = [
+`BinarySearch(arr, key):`,
+`  low = 0`,
+`  high = n - 1`,
+`  while low <= high:`,
+`    mid = (low + high) / 2`,
+`    if arr[mid] == key: return mid`,
+`    else if arr[mid] < key: low = mid + 1`,
+`    else: high = mid - 1`,
+`  return -1`
+  ];
+  function renderCode(active = -1) {
+    codePanel.innerHTML = "";
+    codeLines.forEach((line, i) => {
+      const d = document.createElement("div");
+      d.className = "code-line" + (i === active ? " active" : "");
+      d.textContent = line;
+      codePanel.appendChild(d);
+    });
+  }
+  renderCode();
+
+  function renderArray() {
+    area.innerHTML = "";
+    arr.forEach(val => {
+      const div = document.createElement("div");
+      div.className = "block";
+      div.textContent = val;
+      area.appendChild(div);
+    });
+  }
+
+  document.getElementById("set-array").onclick = () => {
+    const s = arrayInput.value.trim();
+    if (s) arr = s.split(",").map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+    arr.sort((a,b)=>a-b); // Binary search requires sorted
+    renderArray();
+    resultEl.textContent = "";
+  };
+
+  document.getElementById("random-array").onclick = () => {
+    arr = Array.from({ length: 7 }, () => Math.floor(Math.random() * 90) + 10);
+    arr.sort((a,b)=>a-b);
+    renderArray();
+    resultEl.textContent = "";
+  };
+
+  document.getElementById("reset-btn").onclick = () => {
+    arr = [1, 3, 5, 7, 9];
+    renderArray();
+    resultEl.textContent = "";
+    renderCode();
+  };
+
+  document.getElementById("start-btn").onclick = async () => {
+    const key = parseInt(keyInput.value);
+    if (isNaN(key)) {
+      resultEl.textContent = "⚠️ Enter a valid key!";
+      return;
+    }
+    const blocks = document.querySelectorAll(".block");
+    let low = 0, high = arr.length - 1;
+    renderCode(3);
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      renderCode(4);
+      blocks.forEach((b, i) => {
+        b.classList.remove("left", "right", "mid", "found", "notfound");
+        if (i < low || i > high) b.classList.add("right");
+      });
+      blocks[mid].classList.add("mid");
+      await sleep(700);
+      if (arr[mid] === key) {
+        blocks[mid].classList.remove("mid");
+        blocks[mid].classList.add("found");
+        renderCode(5);
+        resultEl.textContent = `✅ Element ${key} found at index ${mid}`;
+        return;
+      } else if (arr[mid] < key) {
+        renderCode(6);
+        low = mid + 1;
+      } else {
+        renderCode(7);
+        high = mid - 1;
+      }
+      await sleep(700);
+    }
+    renderCode(8);
+    resultEl.textContent = `❌ Element ${key} not found in array`;
+  };
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+})();
+</script>
+ <footer>
+  <p>Made with ❤️ by Ngroups</p>
+  <p><a href="mailto:ngroups.ng@gmail.com">If any issues mail to this email.(Click me)</a></p>
+</footer>
+</body>
+</html>

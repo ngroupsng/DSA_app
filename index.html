@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/dsa1.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#2563eb">
+
+<title>DSA Learning App — Version 1</title>
+<link rel="manifest" href="manifest.json">
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("service-worker.js")
+      .then(reg => console.log("✅ Service Worker registered:", reg.scope))
+      .catch(err => console.log("❌ Service Worker failed:", err));
+  });
+}
+</script>
+
+<style>
+:root{
+  --accent:#2563eb; --bg:#f8fafc; --text:#0f172a;
+  --card:#ffffff; --shadow:rgba(37,99,235,0.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+header{background:var(--accent);color:#fff;padding:20px;text-align:center;box-shadow:0 3px 10px rgba(0,0,0,.1)}
+header h1{font-size:1.8rem;margin-bottom:4px}
+header p{opacity:.9;font-size:.95rem}
+main{flex:1;max-width:1100px;margin:24px auto;padding:0 16px}
+.search-bar{display:flex;justify-content:center;margin-bottom:22px;gap:8px;flex-wrap:wrap}
+.search-bar input{width:70%;max-width:480px;padding:10px 14px;border:1px solid #cbd5e1;border-radius:10px;font-size:1rem}
+.search-bar select{padding:10px;border-radius:10px;border:1px solid #cbd5e1;font-size:1rem}
+.category{margin-top:32px}
+.category h2{font-size:1.3rem;margin-bottom:14px;color:var(--accent);border-left:4px solid var(--accent);padding-left:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.card{background:var(--card);padding:18px;border-radius:14px;box-shadow:0 6px 16px var(--shadow);transition:transform .3s,box-shadow .3s,background .3s;cursor:pointer;position:relative;overflow:hidden;opacity:0;transform:translateY(20px)}
+.card.visible{opacity:1;transform:translateY(0);transition:all .6s ease}
+.card:hover{transform:translateY(-6px);box-shadow:0 10px 24px rgba(37,99,235,0.25)}
+.card::after{content:"";position:absolute;top:0;left:0;width:0;height:100%;background:linear-gradient(90deg,rgba(37,99,235,0.1),rgba(255,255,255,0));transition:width .5s}
+.card:hover::after{width:100%}
+.card h3{font-size:1.15rem;margin-bottom:6px;color:var(--accent)}
+.card p{font-size:.9rem;margin-bottom:10px;line-height:1.4}
+.badge{display:inline-block;padding:4px 10px;border-radius:8px;font-size:.75rem;font-weight:600;color:#fff}
+.badge.beginner{background:#10b981}
+.badge.intermediate{background:#f59e0b}
+.badge.advanced{background:#ef4444}
+.time{font-size:.85rem;color:#475569;background:#eef2ff;padding:6px 8px;border-radius:8px;margin-top:6px;display:inline-block}
+footer{background:#1e293b;color:#fff;text-align:center;padding:12px 0;font-size:.9rem;margin-top:30px}
+footer span{color:#f87171}
+@media(max-width:600px){.search-bar input{width:90%}}
+</style>
+</head>
+<body>
+<header>
+  <h1>DSA Learning App</h1>
+  <p>Visualize • Understand • Master DSA with Ease</p>
+</header>
+
+<main>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search topic, category or difficulty...">
+    <select id="levelFilter">
+      <option value="all">All Levels</option>
+      <option value="beginner">Beginner</option>
+      <option value="intermediate">Intermediate</option>
+      <option value="advanced">Advanced</option>
+    </select>
+  </div>
+
+  <div id="topicsContainer"></div>
+
+  <p style="text-align:center;margin-top:30px;font-weight:600;color:#475569">
+    🌟 More topics and exciting features coming soon — stay tuned!
+  </p>
+</main>
+
+<footer>
+  Made with <span>❤️</span> by Ngroups
+</footer>
+
+<script>
+const topicsByCategory = {
+  "Sorting Algorithms":[
+    {title:"Bubble Sort",desc:"Repeatedly swaps adjacent elements until sorted.",level:"beginner",best:"O(n)",link:"bubble-sort.html"},
+    {title:"Selection Sort",desc:"Selects minimum element and places it correctly.",level:"beginner",best:"O(n²)",link:"selection-sort.html"},
+    {title:"Insertion Sort",desc:"Inserts elements into correct position in sorted part.",level:"beginner",best:"O(n)",link:"insertion-sort.html"},
+    {title:"Quick Sort",desc:"Divides array by pivot and sorts subarrays recursively.",level:"intermediate",best:"O(n log n)",link:"quick-sort.html"}
+  ],
+  "Linked Lists":[
+    {title:"Singly Linked List",desc:"Nodes linked linearly with next pointer.",level:"beginner",best:"O(1)",link:"singly-linked-list.html"},
+    {title:"Doubly Linked List",desc:"Each node has next and previous pointers.",level:"intermediate",best:"O(1)",link:"doubly-linked-list.html"},
+    {title:"Circular Singly Linked List",desc:"Last node points back to head, forming a circle.",level:"intermediate",best:"O(1)",link:"circular-singly-linked-list.html"}
+  ],
+  "Stacks & Queues":[
+    {title:"Stack",desc:"Follows LIFO (Last In, First Out) principle.",level:"beginner",best:"O(1)",link:"stack.html"},
+    {title:"Queue",desc:"Follows FIFO (First In, First Out) principle.",level:"beginner",best:"O(1)",link:"queue.html"}
+  ],
+  "Trees":[
+    {title:"Binary Tree",desc:"Each node has at most two children.",level:"intermediate",best:"O(n)",link:"binary-tree.html"},
+  ],
+  "Graphs":[
+    {title:"Graphs (BFS & DFS)",desc:"Represents connections between nodes with edges.",level:"advanced",best:"O(V+E)",link:"graphs.html"}
+  ]
+};
+
+// --- Rendering ---
+const container=document.getElementById('topicsContainer');
+function renderTopics(){
+  container.innerHTML='';
+  const term=document.getElementById('searchInput').value.toLowerCase();
+  const lvl=document.getElementById('levelFilter').value;
+  for(const [cat,topics] of Object.entries(topicsByCategory)){
+    const section=document.createElement('div');
+    section.className='category';
+    const heading=document.createElement('h2');
+    heading.textContent=cat;
+    section.appendChild(heading);
+    const grid=document.createElement('div');
+    grid.className='grid';
+    let visible=0;
+    topics.forEach(t=>{
+      const matchName=t.title.toLowerCase().includes(term)||
+                      cat.toLowerCase().includes(term)||
+                      t.level.includes(term);
+      const matchLevel=(lvl==='all'||t.level===lvl);
+      if(matchName&&matchLevel){
+        visible++;
+        const c=document.createElement('div');
+        c.className='card';
+        c.innerHTML=`<h3>${t.title}</h3>
+        <p>${t.desc}</p>
+        <span class="badge ${t.level}">${t.level.charAt(0).toUpperCase()+t.level.slice(1)}</span>
+        <div class="time">Best Case: ${t.best}</div>`;
+        c.onclick=()=>location.href=t.link;
+        grid.appendChild(c);
+      }
+    });
+    if(visible>0){section.appendChild(grid);container.appendChild(section);}
+  }
+  if(container.innerHTML.trim()===''){
+    container.innerHTML='<p style="text-align:center;font-weight:500;color:#64748b;margin-top:20px;">No topics found.</p>';
+  }
+  // animation
+  setTimeout(()=>document.querySelectorAll('.card').forEach((c,i)=>setTimeout(()=>c.classList.add('visible'),100*i)),100);
+}
+
+document.getElementById('searchInput').oninput=e=>{
+  if(!e.target.value.trim()) document.getElementById('levelFilter').value='all';
+  renderTopics();
+};
+document.getElementById('levelFilter').onchange=renderTopics;
+renderTopics();
+</script>
+</body>
+</html>

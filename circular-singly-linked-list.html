@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/dsa1.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#2563eb">
+
+<title>Circular Singly Linked List — Visualizer</title>
+<style>
+:root{
+  --accent:#2563eb;--bg:#f6f7fb;--text:#0f172a;
+  --node:#c7d2fe;--node-new:#60a5fa;--node-del:#fb7185;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:var(--accent);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px}
+header button{background:#fff;color:var(--accent);border:none;padding:6px 10px;border-radius:8px;cursor:pointer}
+.wrap{max-width:1100px;margin:16px auto;padding:12px}
+.tab-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tab-buttons button{padding:8px 12px;border-radius:8px;border:1px solid #dbeafe;background:#fff;cursor:pointer;font-weight:600}
+.tab-buttons button.active{background:var(--accent);color:#fff}
+.tab{display:none;background:#fff;padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(12,15,30,0.06)}
+.tab.active{display:block}
+.controls-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+input{padding:8px;border:1px solid #cbd5e1;border-radius:8px}
+button.cta{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+button.ghost{background:#eef2ff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+.visual-container{display:flex;gap:20px;flex-wrap:wrap}
+.visual-box,.code-box{flex:1 1 420px;background:#f8fafc;border-radius:10px;padding:16px;min-height:300px;overflow:auto}
+.nodes-row{display:flex;align-items:center;gap:28px;justify-content:center;flex-wrap:wrap}
+.node{width:90px;height:60px;background:var(--node);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;position:relative;transition:.35s}
+.node.new{background:var(--node-new);color:#fff;transform:scale(1.08)}
+.node.del{background:var(--node-del);color:#fff;transform:scale(.7);opacity:.7}
+.arrow{position:absolute;right:-30px;top:50%;width:30px;height:2px;background:#475569}
+.arrow::after{content:"";position:absolute;right:0;top:-4px;border-left:6px solid #475569;border-top:4px solid transparent;border-bottom:4px solid transparent}
+.status{margin-top:10px;font-weight:700;color:var(--accent)}
+pre{background:#f1f5f9;padding:12px;border-radius:8px;overflow:auto;font-size:14px;line-height:1.5}
+.highlight{background:#fde68a}
+@media(max-width:800px){.visual-container{flex-direction:column}}
+footer{
+  text-align: center;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <button onclick="location.href='index.html'">Home</button>
+  <h1>Circular Singly Linked List — Visualizer</h1>
+</header>
+
+<div class="wrap">
+  <div class="tab-buttons">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="pseudocode">Pseudocode</button>
+    <button class="tab-btn" data-tab="visualizer">Visualizer + Code</button>
+    <button class="tab-btn" data-tab="ccode">C Code</button>
+  </div>
+
+  <!-- Overview -->
+  <section id="overview" class="tab active">
+    <p><b>Circular Singly Linked List</b> connects the last node back to the head, forming a loop. Traversal continues until we reach the head again.</p>
+  </section>
+
+  <!-- Pseudocode -->
+  <section id="pseudocode" class="tab">
+<pre>
+CREATE(x):
+  new = node(x)
+  if head == NULL:
+    head = new
+    new.next = head
+  else:
+    temp = head
+    while temp.next != head:
+        temp = temp.next
+    temp.next = new
+    new.next = head
+
+DISPLAY():
+  if head == NULL: print("Empty")
+  else:
+    temp = head
+    do:
+      print(temp.data)
+      temp = temp.next
+    while temp != head
+</pre>
+  </section>
+
+  <!-- Visualizer + Code -->
+  <section id="visualizer" class="tab">
+    <div class="controls-row">
+      <input id="valInput" type="text" placeholder="Enter value">
+      <button class="cta" id="insertBtn">Insert</button>
+      <button class="ghost" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="visual-container">
+      <div class="visual-box">
+        <div class="nodes-row" id="nodesRow"></div>
+        <div class="status" id="status">Status: Ready</div>
+      </div>
+
+      <div class="code-box">
+<pre id="codeBox">
+<span id="l1">struct Node { int data; struct Node* next; };</span>
+<span id="l2">struct Node* head = NULL;</span>
+
+<span id="l3">void insert(int val) {</span>
+<span id="l4">  struct Node* newNode = malloc(sizeof(struct Node));</span>
+<span id="l5">  newNode->data = val;</span>
+<span id="l6">  if(head == NULL){</span>
+<span id="l7">    head = newNode;</span>
+<span id="l8">    newNode->next = head;</span>
+<span id="l9">  }else{</span>
+<span id="l10">    struct Node* temp = head;</span>
+<span id="l11">    while(temp->next != head)</span>
+<span id="l12">      temp = temp->next;</span>
+<span id="l13">    temp->next = newNode;</span>
+<span id="l14">    newNode->next = head;</span>
+<span id="l15">  }</span>
+<span id="l16">}</span>
+</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- C Code -->
+  <section id="ccode" class="tab">
+<pre>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+struct Node { int data; struct Node* next; };
+struct Node* head = NULL;
+
+void insert(int val) {
+  struct Node* newNode = malloc(sizeof(struct Node));
+  newNode->data = val;
+  if(head == NULL) {
+    head = newNode;
+    newNode->next = head;
+  }else {
+    struct Node* temp = head;
+    while(temp->next != head)
+      temp = temp->next;
+    temp->next = newNode;
+    newNode->next = head;
+  }
+}
+</pre>
+  </section>
+</div>
+
+<script>
+// tab switching
+const tabs=document.querySelectorAll('.tab'),btns=document.querySelectorAll('.tab-btn');
+btns.forEach(b=>b.onclick=()=>{btns.forEach(x=>x.classList.toggle('active',x===b));
+ tabs.forEach(t=>t.classList.toggle('active',t.id===b.dataset.tab));});
+
+// visualizer logic
+const row=document.getElementById('nodesRow');
+const status=document.getElementById('status');
+let list=[];
+function highlight(line){document.querySelectorAll('#codeBox span').forEach(s=>s.classList.remove('highlight'));
+ if(line)document.getElementById('l'+line).classList.add('highlight');}
+
+function render(){
+ row.innerHTML='';
+ if(!list.length)return;
+ list.forEach((v,i)=>{
+  const n=document.createElement('div');
+  n.className='node';
+  n.textContent=v;
+  row.appendChild(n);
+  const arrow=document.createElement('div');
+  arrow.className='arrow';
+  if(i===list.length-1){
+    arrow.style.transform='rotate(180deg)';
+    arrow.style.right='auto';
+    arrow.style.left='-30px';
+  }
+  n.appendChild(arrow);
+ });
+}
+
+document.getElementById('insertBtn').onclick=async()=>{
+ const val=document.getElementById('valInput').value.trim();
+ if(!val)return;
+ highlight(4);await delay(300);
+ list.push(val);
+ render();
+ highlight(13);await delay(400);
+ highlight();status.textContent=`Inserted ${val}`;
+ document.getElementById('valInput').value='';
+};
+document.getElementById('resetBtn').onclick=()=>{
+ list=[];render();highlight();status.textContent='List cleared';
+};
+function delay(ms){return new Promise(res=>setTimeout(res,ms));}
+render();
+</script>
+ <footer>
+  <p>Made with ❤️ by Ngroups</p>
+  <p><a href="mailto:ngroups.ng@gmail.com">If any issues mail to this email.(Click me)</a></p>
+</footer>
+</body>
+</html>

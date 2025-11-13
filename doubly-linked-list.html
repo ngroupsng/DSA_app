@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/dsa1.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#2563eb">
+<title>Doubly Linked List — Visualizer</title>
+<style>
+  :root{
+    --bg:#f6f7fb;--accent:#2563eb;--card:#fff;--text:#0f172a;
+    --node:#c7d2fe;--node-new:#60a5fa;--node-action:#fde68a;--node-del:#fb7185;
+    --arrow:#475569;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{display:flex;align-items:center;gap:12px;background:var(--accent);color:#fff;padding:12px 16px;flex-wrap:wrap}
+  header .home-btn{background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer}
+  header h1{margin:0;font-size:18px;font-weight:600;flex:1}
+  .wrap{max-width:1200px;margin:18px auto;padding:12px}
+  .tab-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .tab-buttons button{padding:8px 12px;border-radius:8px;border:1px solid #e6edf8;background:#fff;cursor:pointer;font-weight:600}
+  .tab-buttons button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  section.tab{display:none;background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(12,15,30,0.06)}
+  section.tab.active{display:block}
+  .visualizer-shell{display:flex;gap:14px}
+  .left-panel{flex:1}
+  .right-panel{width:420px}
+  .controls-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  input[type="text"],input[type="number"]{padding:8px;border-radius:8px;border:1px solid #cbd5e1}
+  input[type="number"]{width:100px}
+  button.cta{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+  button.ghost{background:#eef2ff;border:1px solid #e2e8f0;color:var(--text);padding:8px 12px;border-radius:8px;cursor:pointer}
+  .list-wrap{background:#fbfdff;border-radius:8px;border:1px solid #e6eef8;padding:12px;min-height:360px;position:relative;overflow:auto}
+  .nodes-row{display:flex;align-items:center;gap:36px;padding:20px;min-height:160px;transition:all .3s}
+  .node{width:90px;height:60px;border-radius:10px;background:var(--node);display:flex;align-items:center;justify-content:center;font-weight:800;position:relative;transition:.35s}
+  .node.new{background:var(--node-new);color:#fff;transform:scale(1.06)}
+  .node.action{background:var(--node-action)}
+  .node.del{background:var(--node-del);color:#fff;transform:translateY(-20px);opacity:0}
+  .arrow-svg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+  .status{margin-top:10px;font-weight:700;color:var(--accent)}
+  .code-panel{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;min-height:360px;overflow:auto;font-family:monospace;font-size:13px}
+  .code-line{padding:4px 6px;border-radius:4px}
+  .code-line.active{background:rgba(253,230,138,0.12);color:#111}
+  @media(max-width:980px){.visualizer-shell{flex-direction:column}.right-panel{width:100%}}
+  footer{
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<header>
+  <button class="home-btn" id="homeBtn">Home</button>
+  <h1>Doubly Linked List — Visualizer</h1>
+</header>
+
+<div class="wrap">
+  <div class="tab-buttons">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="pseudocode">Pseudocode</button>
+    <button class="tab-btn" data-tab="visualizer">Visualizer</button>
+    <button class="tab-btn" data-tab="ccode">C Code</button>
+  </div>
+
+  <!-- Overview -->
+  <section id="overview" class="tab active">
+    <h2>Overview</h2>
+    <p>A <strong>doubly linked list</strong> allows traversal in both directions. Each node has two pointers: <code>prev</code> and <code>next</code>.</p>
+    <ul>
+      <li>Insert / Delete at beginning, end, or given position.</li>
+      <li>Traversal possible forward and backward.</li>
+    </ul>
+  </section>
+
+  <!-- Pseudocode -->
+  <section id="pseudocode" class="tab">
+    <h2>Pseudocode</h2>
+    <pre style="background:#f1f5f9;padding:12px;border-radius:8px;">
+INSERT_BEGIN(x):
+  new.prev = NULL
+  new.next = head
+  if head != NULL: head.prev = new
+  head = new
+
+INSERT_END(x):
+  if head == NULL: head = new
+  else:
+    temp = head
+    while temp.next != NULL: temp = temp.next
+    temp.next = new
+    new.prev = temp
+
+DELETE_BEGIN():
+  if head == NULL: return
+  temp = head
+  head = head.next
+  if head != NULL: head.prev = NULL
+  free(temp)
+
+DELETE_END():
+  if head == NULL: return
+  temp = head
+  while temp.next != NULL: temp = temp.next
+  temp.prev.next = NULL
+  free(temp)
+    </pre>
+  </section>
+
+  <!-- Visualizer -->
+  <section id="visualizer" class="tab active">
+    <div class="visualizer-shell">
+      <div class="left-panel">
+        <div class="controls-row">
+          <input id="value-input" type="text" placeholder="Value">
+          <input id="pos-input" type="number" placeholder="Pos" min="0">
+          <button class="cta" id="insert-begin">Insert Beg</button>
+          <button class="cta" id="insert-end">Insert End</button>
+          <button class="cta" id="insert-pos">Insert Pos</button>
+          <button class="ghost" id="delete-begin">Del Beg</button>
+          <button class="ghost" id="delete-end">Del End</button>
+          <button class="ghost" id="delete-pos">Del Pos</button>
+        </div>
+        <div class="list-wrap" id="list-wrap">
+          <svg class="arrow-svg" id="arrow-svg"></svg>
+          <div class="nodes-row" id="nodes-row"></div>
+        </div>
+        <div class="status" id="status">Status: Ready</div>
+      </div>
+      <div class="right-panel">
+        <div class="code-panel" id="code-panel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- C Code -->
+  <section id="ccode" class="tab">
+    <h2>Simple C Code (Doubly Linked List)</h2>
+<pre style="background:#f8fafc;padding:12px;border-radius:8px;">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+struct Node{
+  int data;
+  struct Node* prev;
+  struct Node* next;
+};
+
+struct Node* head = NULL;
+
+void insertAtBeginning(int x){
+  struct Node* newNode = malloc(sizeof(struct Node));
+  newNode->data = x;
+  newNode->prev = NULL;
+  newNode->next = head;
+  if(head) head->prev = newNode;
+  head = newNode;
+}
+
+void insertAtEnd(int x){
+  struct Node* newNode = malloc(sizeof(struct Node));
+  newNode->data = x;
+  newNode->next = NULL;
+  if(head == NULL){ newNode->prev = NULL; head = newNode; return; }
+  struct Node* temp = head;
+  while(temp->next) temp = temp->next;
+  temp->next = newNode;
+  newNode->prev = temp;
+}
+
+void deleteAtBeginning(){
+  if(head == NULL) return;
+  struct Node* temp = head;
+  head = head->next;
+  if(head) head->prev = NULL;
+  free(temp);
+}
+
+void deleteAtEnd(){
+  if(head == NULL) return;
+  struct Node* temp = head;
+  while(temp->next) temp = temp->next;
+  if(temp->prev) temp->prev->next = NULL;
+  else head = NULL;
+  free(temp);
+}
+</pre>
+  </section>
+</div>
+
+<script>
+(() => {
+  const tabs=document.querySelectorAll('.tab'),btns=document.querySelectorAll('.tab-btn');
+  btns.forEach(b=>b.addEventListener('click',()=>{btns.forEach(x=>x.classList.toggle('active',x===b));tabs.forEach(t=>t.classList.toggle('active',t.id===b.dataset.tab));}));
+  document.getElementById('homeBtn').onclick=()=>location.href='index.html';
+
+  const listWrap=document.getElementById('list-wrap'),
+        nodesRow=document.getElementById('nodes-row'),
+        arrowSvg=document.getElementById('arrow-svg'),
+        status=document.getElementById('status'),
+        code=document.getElementById('code-panel');
+
+  const codeLines=[
+    "INSERT_BEGIN: new.prev=NULL; new.next=head; if(head) head.prev=new; head=new",
+    "INSERT_END: traverse to last; last.next=new; new.prev=last",
+    "INSERT_AT: adjust both prev and next links",
+    "DELETE_BEGIN: head=head.next; if(head) head.prev=NULL",
+    "DELETE_END: traverse to last; last.prev.next=NULL",
+    "DELETE_AT: bypass node by adjusting both prev and next"
+  ];
+  const renderCode=(a=-1)=>{code.innerHTML='';codeLines.forEach((l,i)=>{const d=document.createElement('div');d.className='code-line'+(i===a?' active':'');d.textContent=l;code.appendChild(d);});};
+  renderCode();
+
+  let list=[5,10,15];
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+  const draw=()=>{nodesRow.innerHTML='';arrowSvg.innerHTML='';list.forEach((v,i)=>{const n=document.createElement('div');n.className='node';n.textContent=v;nodesRow.appendChild(n);});requestAnimationFrame(()=>drawArrows());};
+  const drawArrows=()=>{const svgRect=arrowSvg.getBoundingClientRect();const nodes=[...nodesRow.querySelectorAll('.node')];if(nodes.length<2)return;nodes.forEach((n,i)=>{const next=nodes[i+1];if(!next)return;const a=n.getBoundingClientRect(),b=next.getBoundingClientRect();const startX=a.right-svgRect.left,endX=b.left-svgRect.left;const y=a.top+a.height/2-svgRect.top;['f','b'].forEach(dir=>{const p=document.createElementNS('http://www.w3.org/2000/svg','path');const d=dir==='f'?`M${startX} ${y} L${endX} ${y}`:`M${endX} ${y+6} L${startX} ${y+6}`;p.setAttribute('d',d);p.setAttribute('stroke','var(--arrow)');p.setAttribute('stroke-width','2');p.setAttribute('marker-end','url(#arrowhead)');arrowSvg.appendChild(p);});});if(!arrowSvg.querySelector('#arrowhead')){const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');defs.innerHTML=`<marker id="arrowhead" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="${getComputedStyle(document.documentElement).getPropertyValue('--arrow').trim()}"/></marker>`;arrowSvg.appendChild(defs);}};
+
+  const setStatus=(t,c=-1)=>{status.textContent=t;renderCode(c);};
+  async function insertBeg(v){setStatus('Inserting at beginning...',0);list.unshift(v);draw();await sleep(400);setStatus('Done',-1);}
+  async function insertEnd(v){setStatus('Inserting at end...',1);list.push(v);draw();await sleep(400);setStatus('Done',-1);}
+  async function insertPos(v,p){if(p<0)p=0;if(p>list.length)p=list.length;setStatus('Inserting at pos '+p,2);list.splice(p,0,v);draw();await sleep(400);setStatus('Done',-1);}
+  async function delBeg(){if(!list.length)return setStatus('Empty',-1);setStatus('Deleting at beginning',3);list.shift();draw();await sleep(300);setStatus('Done',-1);}
+  async function delEnd(){if(!list.length)return setStatus('Empty',-1);setStatus('Deleting at end',4);list.pop();draw();await sleep(300);setStatus('Done',-1);}
+  async function delPos(p){if(!list.length)return setStatus('Empty',-1);if(p<0)p=0;if(p>=list.length)p=list.length-1;setStatus('Deleting at pos '+p,5);list.splice(p,1);draw();await sleep(300);setStatus('Done',-1);}
+
+  document.getElementById('insert-begin').onclick=()=>{const v=value();if(v)insertBeg(v);}
+  document.getElementById('insert-end').onclick=()=>{const v=value();if(v)insertEnd(v);}
+  document.getElementById('insert-pos').onclick=()=>{const v=value();let p=parseInt(pos());if(isNaN(p))p=list.length;if(v)insertPos(v,p);}
+  document.getElementById('delete-begin').onclick=()=>delBeg();
+  document.getElementById('delete-end').onclick=()=>delEnd();
+  document.getElementById('delete-pos').onclick=()=>{let p=parseInt(pos());if(isNaN(p))p=0;delPos(p);};
+
+  const value=()=>document.getElementById('value-input').value.trim();
+  const pos=()=>document.getElementById('pos-input').value.trim();
+
+  draw();
+  window.addEventListener('resize',()=>requestAnimationFrame(drawArrows));
+})();
+</script>
+ <footer>
+  <p>Made with ❤️ by Ngroups</p>
+  <p><a href="mailto:ngroups.ng@gmail.com">If any issues mail to this email.(Click me)</a></p>
+</footer>
+</body>
+</html>

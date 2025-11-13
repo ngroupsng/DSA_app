@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/dsa1.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#2563eb">
+
+<title>Bubble Sort Visualizer </title>
+<style>
+:root {
+  --bg:#f6f7fb; --accent:#2563eb; --compare:#f59e0b; --swap:#2563eb; --sorted:#10b981; --card:#fff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial, sans-serif;background:var(--bg);color:#0f172a}
+header{display:flex;align-items:center;gap:12px;background:var(--accent);color:#fff;padding:12px 16px;flex-wrap:wrap}
+header .home-btn{background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff;padding:6px 10px;border-radius:8px;cursor:pointer}
+header h1{margin:0;font-size:18px;font-weight:600;flex:1}
+.wrap{max-width:1000px;margin:18px auto;padding:12px}
+.tab-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tab-buttons button{padding:8px 12px;border-radius:8px;border:1px solid #e6edf8;background:#fff;cursor:pointer;font-weight:600}
+.tab-buttons button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+section.tab{display:none;background:var(--card);padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(12,15,30,0.06)}
+section.tab.active{display:block}
+.blocks-card{padding:12px;margin-top:12px}
+#blocks{display:flex;align-items:flex-end;gap:8px;min-height:180px;height:220px;justify-content:center;flex-wrap:wrap;padding:12px;background:#fbfdff;border-radius:8px;border:1px solid #e6eef8}
+.block{width:56px;height:56px;background:#c7d2fe;color:#07103b;font-weight:700;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:all 260ms ease;box-shadow:0 6px 12px rgba(15,23,42,0.06)}
+.block.compare{background:var(--compare);color:#08121a}
+.block.swap{background:var(--swap);color:#fff}
+.block.sorted{background:var(--sorted);color:#fff}
+.controls-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+input[type="text"]{padding:8px;border-radius:8px;border:1px solid #cbd5e1;width:180px}
+button.cta{background:var(--accent);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+button.ghost{background:#eef2ff;border:1px solid #e2e8f0;color:#0f172a}
+.code-lines{background:#0b1220;color:#e6eef8;padding:12px;border-radius:8px;min-height:220px;overflow:auto;margin-top:12px;font-family:monospace;font-size:13px}
+.code-line.active{background:rgba(253,230,138,0.14);color:#111}
+.small{font-size:13px;color:#475569;margin-top:6px}
+@media(min-width:900px){ .visualizer-area{display:flex;gap:14px} .blocks-card,.code-card{flex:1} }
+footer{
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<header>
+  <button class="home-btn" id="homeBtn">Home</button>
+  <h1>Bubble Sort Visualizer </h1>
+</header>
+
+<div class="wrap">
+  <!-- Tab Buttons -->
+  <div class="tab-buttons">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="pseudocode">Pseudocode</button>
+    <button class="tab-btn" data-tab="visualizer">Visualizer</button>
+    <button class="tab-btn" data-tab="Algorthim">Algorthim</button>
+    <button class="tab-btn" data-tab="Code">Code</button>
+  </div>
+
+  <!-- Overview -->
+  <section id="overview" class="tab active">
+    <h2>Overview</h2>
+    <p>Bubble Sort is a simple comparison-based sorting algorithm. It repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order. Each pass moves the largest unsorted element to its correct place.</p>
+    <p class="small"><strong>Complexity:</strong> Worst-case O(n²), Best-case O(n) (with early stop). Stable and in-place.</p>
+  </section>
+
+  <!-- Pseudocode -->
+  <section id="pseudocode" class="tab">
+    <h2>Pseudocode</h2>
+    <pre style="background:#f1f5f9;padding:12px;border-radius:8px;">
+for i = 0 to n - 2
+  for j = 0 to n - i - 2
+    if arr[j] > arr[j + 1]
+      swap(arr[j], arr[j + 1])
+    </pre>
+    <p class="small">Process: After each outer loop, the largest element among the unsorted portion ends at the right side (like bubbles rising).</p>
+  </section>
+
+  <!-- Visualizer -->
+  <section id="visualizer" class="tab">
+    <h2>Visualizer</h2>
+    <div class="controls-row">
+      <input id="array-input" type="text" placeholder="e.g. 5,2,8,1,4">
+      <button class="cta" id="set-array">Set Array</button>
+      <button class="ghost" id="random-array">Random</button>
+      <button class="cta" id="start-btn">Start</button>
+      <button class="ghost" id="reset-btn">Reset</button>
+      <label class="small">Speed:</label>
+      <input type="range" id="speed" min="50" max="1000" value="400">
+    </div>
+    <div class="visualizer-area">
+      <div class="blocks-card">
+        <div class="small">i: <span id="i-val">-</span> | j: <span id="j-val">-</span></div>
+        <div id="blocks"></div>
+        <div class="small">Squares = elements. Compare = yellow, Swap = blue, Sorted = green.</div>
+      </div>
+      <div class="code-card">
+        <div class="code-lines" id="code-lines"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Algorthim -->
+  <section id="Algorthim" class="tab">
+    <h2>Algorthim</h2>
+    <pre style="background:#f1f5f9;padding:12px;border-radius:8px;">
+    <p>1.In the unsorted array of n elements, start with the first two elements and sort them in ascending order.</p>
+    <p class="small">(compare the elements to check which one is greater) </p>
+    <p>2. Compare the second and third element to check which one is greater and sort thek in ascending.</p>
+    <p>3. Compare n times this process.</p>
+    <p>4. Repeat the steps until no more swaping is required</p>
+  </section>
+  <!-- Code -->
+  <section id="Code" class="tab"> 
+    <h2>Code</h2>
+    <pre style="background:#f1f5f9;padding:12px;border-radius:8px;">
+    <p>#include <stdio.h> <br>
+        int main() <br>
+        { <br>
+            int arr[50], n, x, y, temp; <br>
+            printf("Please Enter the Number of Elements you want in the array: "); <br>
+           scanf("%d", &n); <br>
+           printf("Please Enter the Value of Elements: "); <br>
+          for (x = 0; x < n; x++) <br>
+           {<br>
+            scanf("%d", &arr[x]); <br>
+           }<br>
+    for (x = 0; x < n - 1; x++)<br>
+  {<br>
+  for (y = 0; y < n - x - 1; y++)<br>
+  { <br>
+ if (arr[y] > arr[y + 1]) <br>
+  { <br>
+    temp = arr[y]; <br>
+     arr[y] = arr[y + 1]; <br>
+      arr[y + 1] = temp; <br>
+  } <br>
+  }<br>
+  } <br>
+  printf("Array after implementing bubble sort: "); <br>
+  for (x = 0; x < n; x++) <br>
+  {<br>
+  printf("%d ", arr[x]);<br>
+  }<br>
+  return 0;<br>
+</p>
+</pre>
+  </section>
+<script>
+(() => {
+  // Tabs
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabs = document.querySelectorAll('.tab');
+  const homeBtn = document.getElementById('homeBtn');
+  tabBtns.forEach(btn => btn.addEventListener('click', ()=>{
+    const t = btn.dataset.tab;
+    tabBtns.forEach(b=>b.classList.toggle('active',b===btn));
+    tabs.forEach(tab=>tab.classList.toggle('active',tab.id===t));
+    document.getElementById(t).scrollIntoView({behavior:'smooth',block:'start'});
+  }));
+  homeBtn.addEventListener('click', ()=>{
+  window.location.href = "index.html";
+});
+
+
+  // Visualizer
+  const blocksEl = document.getElementById('blocks');
+  const arrayInput = document.getElementById('array-input');
+  const setArrayBtn = document.getElementById('set-array');
+  const randomBtn = document.getElementById('random-array');
+  const startBtn = document.getElementById('start-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const speedInput = document.getElementById('speed');
+  const iVal = document.getElementById('i-val');
+  const jVal = document.getElementById('j-val');
+  const codeLinesEl = document.getElementById('code-lines');
+
+  let arr = [5,2,8,1,4];
+  let running = false;
+  let speed = Number(speedInput.value);
+
+  const code = [
+`for(i = 0; i < n-1; i++){`,
+`  for(j = 0; j < n-i-1; j++){`,
+`    if(arr[j] > arr[j+1]){`,
+`      int temp = arr[j];`,
+`      arr[j] = arr[j+1];`,
+`      arr[j+1] = temp;`,
+`    }`,
+`  }`,
+`}`
+  ];
+
+  function renderCode(active=-1){
+    codeLinesEl.innerHTML='';
+    code.forEach((ln,idx)=>{
+      const d=document.createElement('div');
+      d.className='code-line'+(idx===active?' active':'');
+      d.textContent=ln;
+      codeLinesEl.appendChild(d);
+    });
+  }
+
+  function renderBlocks(){
+    blocksEl.innerHTML='';
+    arr.forEach((v,idx)=>{
+      const b=document.createElement('div');
+      b.className='block';
+      b.textContent=v;
+      blocksEl.appendChild(b);
+    });
+  }
+
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+  setArrayBtn.addEventListener('click', ()=>{
+    const val=arrayInput.value.split(',').map(x=>parseInt(x.trim())).filter(x=>!isNaN(x));
+    if(val.length>0){arr=val; renderBlocks();}
+  });
+
+  randomBtn.addEventListener('click', ()=>{
+    arr=Array.from({length:6},()=>Math.floor(Math.random()*50)+1);
+    renderBlocks();
+  });
+
+  speedInput.addEventListener('input',()=>speed=Number(speedInput.value));
+
+  resetBtn.addEventListener('click', ()=>{
+    running=false;
+    arr=[5,2,8,1,4];
+    renderBlocks();
+    renderCode();
+    iVal.textContent='-';
+    jVal.textContent='-';
+  });
+
+  async function bubbleSort(){
+    running=true;
+    const n = arr.length;
+    const blocks = blocksEl.children;
+    for(let i=0;i<n-1;i++){
+      iVal.textContent=i;
+      renderCode(0);
+      await sleep(speed);
+      for(let j=0;j<n-i-1;j++){
+        jVal.textContent=j;
+        renderCode(1);
+        blocks[j].classList.add('compare');
+        blocks[j+1].classList.add('compare');
+        await sleep(speed);
+        if(arr[j]>arr[j+1]){
+          renderCode(3);
+          [arr[j],arr[j+1]]=[arr[j+1],arr[j]];
+          blocks[j].textContent=arr[j];
+          blocks[j+1].textContent=arr[j+1];
+          blocks[j].classList.add('swap');
+          blocks[j+1].classList.add('swap');
+          await sleep(speed);
+        }
+        blocks[j].classList.remove('compare','swap');
+        blocks[j+1].classList.remove('compare','swap');
+      }
+      blocks[n-i-1].classList.add('sorted');
+    }
+    blocks[0].classList.add('sorted');
+    iVal.textContent='-'; jVal.textContent='-';
+    renderCode();
+    running=false;
+  }
+
+  startBtn.addEventListener('click', ()=>{
+    if(!running) bubbleSort();
+  });
+
+  renderBlocks();
+  renderCode();
+})();
+</script>
+ <footer>
+  <p>Made with ❤️ by Ngroups</p>
+  <p><a href="mailto:ngroups.ng@gmail.com">If any issues mail to this email.(Click me)</a></p>
+</footer>
+</body>
+</html>

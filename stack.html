@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/dsa1.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#2563eb">
+<title>Stack — Visualizer</title>
+<style>
+  footer{ text-align: center;}
+  :root {
+    --bg: #f6f7fb;
+    --accent: #2563eb;
+    --card: #fff;
+    --text: #0f172a;
+    --block: #c7d2fe;
+    --push: #10b981;
+    --pop: #ef4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Inter", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--accent);
+    color: #fff;
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+  header .home-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .wrap { max-width: 1200px; margin: 18px auto; padding: 12px; }
+  .tab-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .tab-buttons button {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #e6edf8;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .tab-buttons button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  section.tab {
+    display: none;
+    background: var(--card);
+    padding: 14px;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(12, 15, 30, 0.06);
+  }
+  section.tab.active { display: block; }
+
+  .visualizer-shell { display: flex; gap: 14px; }
+  .left-panel { flex: 1; }
+  .right-panel { width: 420px; }
+
+  .controls-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  input[type="text"] {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    width: 180px;
+  }
+  button.cta {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button.ghost {
+    background: #eef2ff;
+    border: 1px solid #e2e8f0;
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .stack-area {
+    background: #fbfdff;
+    border-radius: 8px;
+    border: 1px solid #e6eef8;
+    padding: 12px;
+    height: 360px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    overflow: hidden;
+  }
+  .block {
+    width: 120px;
+    height: 50px;
+    border-radius: 8px;
+    background: var(--block);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    margin-top: 6px;
+    transition: all 0.4s ease;
+  }
+  .block.push { background: var(--push); color: #fff; }
+  .block.pop { background: var(--pop); color: #fff; transform: translateY(-80px); opacity: 0; }
+  .top-indicator {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: var(--accent);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  .result { margin-top: 12px; font-weight: 600; text-align: center; }
+
+  .code-panel {
+    background: #0b1220;
+    color: #e6eef8;
+    padding: 12px;
+    border-radius: 8px;
+    min-height: 360px;
+    overflow: auto;
+    font-family: monospace;
+    font-size: 13px;
+  }
+  .code-line { padding: 4px 6px; border-radius: 4px; }
+  .code-line.active { background: rgba(253, 230, 138, 0.12); color: #111; }
+</style>
+</head>
+<body>
+<header>
+  <button class="home-btn" id="homeBtn">Home</button>
+  <h1>Stack — Visualizer</h1>
+</header>
+
+<div class="wrap">
+  <div class="tab-buttons">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="pseudocode">Pseudocode</button>
+    <button class="tab-btn" data-tab="visualizer">Visualizer</button>
+  </div>
+
+  <!-- Overview -->
+  <section id="overview" class="tab active">
+    <h2>Overview</h2>
+    <p>A Stack is a linear data structure that follows the LIFO (Last In, First Out) principle. Elements are added and removed from the top only.</p>
+    <ul>
+      <li><strong>Push:</strong> Add an element to the top.</li>
+      <li><strong>Pop:</strong> Remove the top element.</li>
+      <li><strong>Peek:</strong> View the top element without removing it.</li>
+    </ul>
+  </section>
+
+  <!-- Pseudocode -->
+  <section id="pseudocode" class="tab">
+    <h2>Pseudocode</h2>
+    <pre style="background:#f1f5f9;padding:12px;border-radius:8px;">
+PUSH(stack, x):
+  if stack is full:
+    print "Overflow"
+  else:
+    top = top + 1
+    stack[top] = x
+
+POP(stack):
+  if stack is empty:
+    print "Underflow"
+  else:
+    x = stack[top]
+    top = top - 1
+    return x
+    </pre>
+  </section>
+
+  <!-- Visualizer -->
+  <section id="visualizer" class="tab active">
+    <div class="visualizer-shell">
+      <div class="left-panel">
+        <div class="controls-row">
+          <input id="value-input" type="text" placeholder="Value e.g. 10">
+          <button class="cta" id="push-btn">Push</button>
+          <button class="ghost" id="pop-btn">Pop</button>
+          <button class="ghost" id="peek-btn">Peek</button>
+          <button class="cta" id="reset-btn">Reset</button>
+        </div>
+
+        <div class="stack-area" id="stack-area">
+          <div class="top-indicator" id="top-indicator">Top: -1</div>
+        </div>
+        <div class="result" id="result"></div>
+      </div>
+
+      <div class="right-panel">
+        <div class="code-panel" id="code-panel"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const tabs = document.querySelectorAll(".tab");
+  const tabBtns = document.querySelectorAll(".tab-btn");
+  tabBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabBtns.forEach(b => b.classList.remove("active"));
+      tabs.forEach(t => t.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
+    });
+  });
+
+  document.getElementById("homeBtn").onclick = () => location.href = "index.html";
+
+  const stackArea = document.getElementById("stack-area");
+  const resultEl = document.getElementById("result");
+  const topIndicator = document.getElementById("top-indicator");
+  const codePanel = document.getElementById("code-panel");
+
+  let stack = [];
+  const MAX_SIZE = 6;
+
+  const codeLines = [
+`PUSH(stack, x):`,
+`  if stack is full: print "Overflow"`,
+`  else: top = top + 1; stack[top] = x`,
+`POP(stack):`,
+`  if stack empty: print "Underflow"`,
+`  else: x = stack[top]; top = top - 1`,
+`PEEK(stack):`,
+`  print stack[top]`
+  ];
+
+  function renderCode(active = -1) {
+    codePanel.innerHTML = "";
+    codeLines.forEach((line, i) => {
+      const d = document.createElement("div");
+      d.className = "code-line" + (i === active ? " active" : "");
+      d.textContent = line;
+      codePanel.appendChild(d);
+    });
+  }
+  renderCode();
+
+  function updateStackUI() {
+    stackArea.querySelectorAll(".block").forEach(b => b.remove());
+    stack.forEach(val => {
+      const div = document.createElement("div");
+      div.className = "block";
+      div.textContent = val;
+      stackArea.appendChild(div);
+    });
+    topIndicator.textContent = `Top: ${stack.length - 1}`;
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  document.getElementById("push-btn").onclick = async () => {
+    const val = document.getElementById("value-input").value.trim();
+    if (!val) {
+      resultEl.textContent = "⚠️ Enter a value!";
+      return;
+    }
+    if (stack.length >= MAX_SIZE) {
+      renderCode(1);
+      resultEl.textContent = "❌ Stack Overflow!";
+      return;
+    }
+    renderCode(2);
+    stack.push(val);
+    updateStackUI();
+    const blocks = stackArea.querySelectorAll(".block");
+    const top = blocks[blocks.length - 1];
+    top.classList.add("push");
+    await sleep(700);
+    top.classList.remove("push");
+    resultEl.textContent = `✅ Pushed ${val}`;
+  };
+
+  document.getElementById("pop-btn").onclick = async () => {
+    if (stack.length === 0) {
+      renderCode(4);
+      resultEl.textContent = "❌ Stack Underflow!";
+      return;
+    }
+    renderCode(5);
+    const popped = stack.pop();
+    const blocks = stackArea.querySelectorAll(".block");
+    const top = blocks[blocks.length - 1];
+    top.classList.add("pop");
+    await sleep(500);
+    updateStackUI();
+    resultEl.textContent = `🧾 Popped ${popped}`;
+  };
+
+  document.getElementById("peek-btn").onclick = () => {
+    if (stack.length === 0) {
+      resultEl.textContent = "❌ Stack is empty!";
+      return;
+    }
+    renderCode(7);
+    const topVal = stack[stack.length - 1];
+    resultEl.textContent = `👀 Peek: ${topVal}`;
+  };
+
+  document.getElementById("reset-btn").onclick = () => {
+    stack = [];
+    resultEl.textContent = "";
+    updateStackUI();
+    renderCode();
+  };
+
+  updateStackUI();
+})();
+</script>
+ <footer>
+  <p>Made with ❤️ by Ngroups</p>
+  <p><a href="mailto:ngroups.ng@gmail.com">If any issues mail to this email.(Click me)</a></p>
+</footer>
+</body>
+</html>
