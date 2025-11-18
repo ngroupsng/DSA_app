@@ -131,8 +131,53 @@ INSERT(root, x):
 <pre>
 #include &lt;stdio.h&gt;
 #include &lt;stdlib.h&gt;
-struct Node{int data;struct Node*left,*right;};
-struct Node*root=NULL;
+
+// Define a node of the binary tree
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+// Create a new node with given data
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = value;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+// In-order traversal (Left, Root, Right)
+void inOrder(struct Node* root) {
+    if (root == NULL) {
+        return;
+    }
+    inOrder(root->left);
+    printf("%d ", root->data);
+    inOrder(root->right);
+}
+
+int main() {
+    // Manually creating a small tree:
+    //        10
+    //       /  \
+    //      5    15
+    //     /    /  \
+    //    2    12   20
+
+    struct Node* root = createNode(10);
+    root->left = createNode(5);
+    root->right = createNode(15);
+    root->left->left = createNode(2);
+    root->right->left = createNode(12);
+    root->right->right = createNode(20);
+
+    printf("In-order Traversal: ");
+    inOrder(root);
+
+    return 0;
+}
 </pre>
   </section>
 </div>
@@ -239,4 +284,5 @@ renderTree();
 </footer>
 </body>
 </html>
+
 
