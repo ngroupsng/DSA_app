@@ -143,22 +143,58 @@ DISPLAY():
 #include &lt;stdio.h&gt;
 #include &lt;stdlib.h&gt;
 
-struct Node { int data; struct Node* next; };
-struct Node* head = NULL;
+// Define a node
+struct Node {
+    int data;
+    struct Node* next;
+};
 
-void insert(int val) {
-  struct Node* newNode = malloc(sizeof(struct Node));
-  newNode->data = val;
-  if(head == NULL) {
-    head = newNode;
-    newNode->next = head;
-  }else {
+// Function to create a circular linked list with 3 nodes
+struct Node* createList() {
+    struct Node* head = NULL;
+    struct Node* second = NULL;
+    struct Node* third = NULL;
+
+    // Allocate memory for nodes
+    head = (struct Node*)malloc(sizeof(struct Node));
+    second = (struct Node*)malloc(sizeof(struct Node));
+    third = (struct Node*)malloc(sizeof(struct Node));
+
+    // Assign values
+    head->data = 10;
+    second->data = 20;
+    third->data = 30;
+
+    // Link nodes
+    head->next = second;
+    second->next = third;
+    third->next = head; // Circular link
+
+    return head;
+}
+
+// Display the circular linked list
+void display(struct Node* head) {
     struct Node* temp = head;
-    while(temp->next != head)
-      temp = temp->next;
-    temp->next = newNode;
-    newNode->next = head;
-  }
+
+    if (head == NULL) {
+        printf("List is empty");
+        return;
+    }
+
+    do {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    } while (temp != head);
+}
+
+int main() {
+    struct Node* head = createList();
+
+    printf("Circular Linked List: ");
+    display(head);
+
+    return 0;
 }
 </pre>
   </section>
@@ -218,4 +254,5 @@ render();
 </footer>
 </body>
 </html>
+
 
