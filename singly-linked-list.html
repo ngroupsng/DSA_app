@@ -183,59 +183,7 @@ DELETE_AT(pos):
   <section id="ccode" class="tab">
     <h2>Simple C Code (Singly Linked List)</h2>
     <pre style="background:#f8fafc;padding:12px;border-radius:8px;overflow:auto;">
-#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
 
-struct Node {
-    int data;
-    struct Node* next;
-};
-
-struct Node* head = NULL;
-
-void insertAtBeginning(int x) {
-    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
-    newNode->data = x;
-    newNode->next = head;
-    head = newNode;
-}
-
-void insertAtEnd(int x) {
-    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
-    newNode->data = x;
-    newNode->next = NULL;
-    if (head == NULL) head = newNode;
-    else {
-        struct Node* temp = head;
-        while (temp->next != NULL) temp = temp->next;
-        temp->next = newNode;
-    }
-}
-
-void deleteBeginning() {
-    if (head == NULL) return;
-    struct Node* temp = head;
-    head = head->next;
-    free(temp);
-}
-
-void deleteEnd() {
-    if (head == NULL) return;
-    if (head->next == NULL) { free(head); head = NULL; return; }
-    struct Node* temp = head;
-    while (temp->next->next != NULL) temp = temp->next;
-    free(temp->next);
-    temp->next = NULL;
-}
-
-void display() {
-    struct Node* temp = head;
-    while (temp != NULL) {
-        printf("%d -> ", temp->data);
-        temp = temp->next;
-    }
-    printf("NULL\n");
-}
     </pre>
   </section>
 </div>
@@ -252,7 +200,157 @@ void display() {
   const tabs = document.querySelectorAll('.tab');
   const tabBtns = document.querySelectorAll('.tab-btn');
   tabBtns.forEach(btn => btn.addEventListener('click', () => {
-    tabBtns.forEach(b => b.classList.toggle('active', b===btn));
+    tabBtns.forEach(b => b.classList.toggle('active',include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+struct Node* head = NULL;
+
+// Create a new node
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = value;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Insert at beginning
+void insertAtBeginning(int value) {
+    struct Node* newNode = createNode(value);
+    newNode->next = head;
+    head = newNode;
+}
+
+// Insert at end
+void insertAtEnd(int value) {
+    struct Node* newNode = createNode(value);
+    if (head == NULL) {
+        head = newNode;
+    } else {
+        struct Node* temp = head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newNode;
+    }
+}
+
+// Insert at given position (1-based index)
+void insertAtPosition(int value, int pos) {
+    struct Node* newNode = createNode(value);
+
+    if (pos == 1) {
+        insertAtBeginning(value);
+        return;
+    }
+
+    struct Node* temp = head;
+    for (int i = 1; i < pos - 1 && temp != NULL; i++) {
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {
+        printf("Position out of range.\n");
+    } else {
+        newNode->next = temp->next;
+        temp->next = newNode;
+    }
+}
+
+// Delete at beginning
+void deleteAtBeginning() {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    struct Node* temp = head;
+    head = head->next;
+    free(temp);
+}
+
+// Delete at end
+void deleteAtEnd() {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+
+    struct Node* temp = head;
+    if (temp->next == NULL) {
+        head = NULL;
+        free(temp);
+        return;
+    }
+
+    while (temp->next->next != NULL) {
+        temp = temp->next;
+    }
+    free(temp->next);
+    temp->next = NULL;
+}
+
+// Delete at given position (1-based index)
+void deleteAtPosition(int pos) {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+
+    struct Node* temp = head;
+
+    if (pos == 1) {
+        deleteAtBeginning();
+        return;
+    }
+
+    for (int i = 1; i < pos - 1 && temp != NULL; i++) {
+        temp = temp->next;
+    }
+
+    if (temp == NULL || temp->next == NULL) {
+        printf("Position out of range.\n");
+    } else {
+        struct Node* toDelete = temp->next;
+        temp->next = toDelete->next;
+        free(toDelete);
+    }
+}
+
+// Display the linked list
+void display() {
+    struct Node* temp = head;
+    printf("\nSingly Linked List: ");
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+int main() {
+    insertAtBeginning(30);
+    insertAtBeginning(20);
+    insertAtBeginning(10);
+
+    insertAtEnd(40);
+    insertAtEnd(50);
+
+    insertAtPosition(25, 3);
+
+    display();
+
+    deleteAtBeginning();
+    deleteAtEnd();
+    deleteAtPosition(3);
+
+    display();
+
+    return 0;
+} b===btn));
     tabs.forEach(t => t.classList.toggle('active', t.id === btn.dataset.tab));
   }));
   document.getElementById('homeBtn').addEventListener('click', ()=> window.location.href='index.html');
@@ -530,4 +628,5 @@ void display() {
 </footer>
 </body>
 </html>
+
 
