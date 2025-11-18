@@ -146,52 +146,170 @@ DELETE_END():
   <section id="ccode" class="tab">
     <h2>Simple C Code (Doubly Linked List)</h2>
 <pre style="background:#f8fafc;padding:12px;border-radius:8px;">
-#include &lt;stdio.h&gt;
+  #include &lt;stdio.h&gt;
 #include &lt;stdlib.h&gt;
 
-struct Node{
-  int data;
-  struct Node* prev;
-  struct Node* next;
+struct Node {
+    int data;
+    struct Node* prev;
+    struct Node* next;
 };
 
 struct Node* head = NULL;
 
-void insertAtBeginning(int x){
-  struct Node* newNode = malloc(sizeof(struct Node));
-  newNode->data = x;
-  newNode->prev = NULL;
-  newNode->next = head;
-  if(head) head->prev = newNode;
-  head = newNode;
+// Create a new node
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = value;
+    newNode->prev = NULL;
+    newNode->next = NULL;
+    return newNode;
 }
 
-void insertAtEnd(int x){
-  struct Node* newNode = malloc(sizeof(struct Node));
-  newNode->data = x;
-  newNode->next = NULL;
-  if(head == NULL){ newNode->prev = NULL; head = newNode; return; }
-  struct Node* temp = head;
-  while(temp->next) temp = temp->next;
-  temp->next = newNode;
-  newNode->prev = temp;
+// Insert at the beginning
+void insertAtBeginning(int value) {
+    struct Node* newNode = createNode(value);
+    if (head == NULL) {
+        head = newNode;
+    } else {
+        newNode->next = head;
+        head->prev = newNode;
+        head = newNode;
+    }
 }
 
-void deleteAtBeginning(){
-  if(head == NULL) return;
-  struct Node* temp = head;
-  head = head->next;
-  if(head) head->prev = NULL;
-  free(temp);
+// Insert at the end
+void insertAtEnd(int value) {
+    struct Node* newNode = createNode(value);
+    if (head == NULL) {
+        head = newNode;
+    } else {
+        struct Node* temp = head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newNode;
+        newNode->prev = temp;
+    }
 }
 
-void deleteAtEnd(){
-  if(head == NULL) return;
-  struct Node* temp = head;
-  while(temp->next) temp = temp->next;
-  if(temp->prev) temp->prev->next = NULL;
-  else head = NULL;
-  free(temp);
+// Insert at given position (1-based index)
+void insertAtPosition(int value, int pos) {
+    struct Node* newNode = createNode(value);
+    if (pos == 1) {
+        insertAtBeginning(value);
+        return;
+    }
+
+    struct Node* temp = head;
+    for (int i = 1; i < pos - 1 && temp != NULL; i++) {
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {
+        printf("Position out of range.\n");
+    } else {
+        newNode->next = temp->next;
+        newNode->prev = temp;
+        if (temp->next != NULL) {
+            temp->next->prev = newNode;
+        }
+        temp->next = newNode;
+    }
+}
+
+// Delete from the beginning
+void deleteAtBeginning() {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    struct Node* temp = head;
+    head = head->next;
+    if (head != NULL) {
+        head->prev = NULL;
+    }
+    free(temp);
+}
+
+// Delete from the end
+void deleteAtEnd() {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    struct Node* temp = head;
+    if (temp->next == NULL) {
+        head = NULL;
+    } else {
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->prev->next = NULL;
+    }
+    free(temp);
+}
+
+// Delete at given position
+void deleteAtPosition(int pos) {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+
+    if (pos == 1) {
+        deleteAtBeginning();
+        return;
+    }
+
+    struct Node* temp = head;
+    for (int i = 1; i < pos && temp != NULL; i++) {
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {
+        printf("Position out of range.\n");
+    } else {
+        if (temp->next != NULL) {
+            temp->next->prev = temp->prev;
+        }
+        if (temp->prev != NULL) {
+            temp->prev->next = temp->next;
+        }
+        free(temp);
+    }
+}
+
+// Display the list from start to end
+void display() {
+    struct Node* temp = head;
+    printf("\nDoubly Linked List: ");
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+int main() {
+    insertAtBeginning(30);
+    insertAtBeginning(20);
+    insertAtBeginning(10);
+
+    insertAtEnd(40);
+    insertAtEnd(50);
+
+    insertAtPosition(25, 3);
+
+    display();
+
+    deleteAtBeginning();
+    deleteAtEnd();
+    deleteAtPosition(3);
+
+    display();
+
+    return 0;
 }
 </pre>
   </section>
@@ -253,4 +371,5 @@ void deleteAtEnd(){
 </footer>
 </body>
 </html>
+
 
